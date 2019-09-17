@@ -33,44 +33,51 @@ class _GameState extends State<Game> {
     SizeHelper sizeHelper = SizeHelper(context);
     GameBloc _gameBloc = BlocProvider.of(context);
 
-    return Container(
-      color: GameColors.MainBackground,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: sizeHelper.headerVerticalPadding),
-            child: SizedBox(
-              width: sizeHelper.width,
-              height: sizeHelper.headerHeight,
-              child: GameHeader()
-            ),
-          ),
-          SizedBox(
-            width: sizeHelper.width,
-            height: sizeHelper.bodyHeight(),
-            child: GameArea(),
-          ),
-          SizedBox(
-            width: sizeHelper.width,
-            height: sizeHelper.footerHeight,
-            child: Center(
-              child: Material(
-                borderRadius: BorderRadius.all(Radius.circular(50)),
-                color: Colors.grey[300],
-                child: IconButton(
-                  icon: Icon(Icons.refresh),
-                  tooltip: 'Restart',
-                  onPressed: () {
-                    _gameBloc.resetGame();
-                  },
+
+    // TODO: Show Winner / Loser popup
+    return Stack(
+      children: [
+        Container(
+          color: GameColors.MainBackground,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: sizeHelper.headerVerticalPadding,
+                ),
+                child: SizedBox(
+                  width: sizeHelper.width,
+                  height: sizeHelper.headerHeight,
+                  child: GameHeader(),
                 ),
               ),
-            ),
+              SizedBox(
+                width: sizeHelper.width,
+                height: sizeHelper.bodyHeight(),
+                child: GameArea(),
+              ),
+              SizedBox(
+                width: sizeHelper.width,
+                height: sizeHelper.footerHeight,
+                child: Center(
+                  child: Material(
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                    color: Colors.grey[300],
+                    child: IconButton(
+                      icon: Icon(Icons.refresh),
+                      tooltip: 'Restart',
+                      onPressed: () {
+                        _gameBloc.resetGame();
+                      },
+                    ),
+                  ),
+                ),
+              )
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

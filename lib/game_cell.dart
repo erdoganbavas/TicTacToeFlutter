@@ -24,49 +24,61 @@ class _GameCellState extends State<GameCell> {
   Sign _localSign = Sign.Empty;
   GameBloc _gameBloc;
 
-  void onGameCellTap(){
+  void onGameCellTap() {
+    // TODO: dont't let user tap twice on bot games
+
     Sign winner = _gameBloc.hasWinner(_gameBloc.grid); // check
 
     print(_gameBloc.grid.toString());
-    if(winner != Sign.Empty  || _gameBloc.isDraw()){
+    if (winner != Sign.Empty || _gameBloc.isDraw()) {
       print("Game is over! No more move");
-    }else if(_localSign != Sign.Empty){
-      print("Cell is already tapped " + widget.x.toString() + " " + widget.y.toString());
-    }else{
+    } else if (_localSign != Sign.Empty) {
+      print("Cell is already tapped " +
+          widget.x.toString() +
+          " " +
+          widget.y.toString());
+    } else {
       print(widget.x.toString() + " " + widget.y.toString() + " tapped");
 
       setState(() {
-        _localSign = _globalSign; // (_globalSign == Sign.X)?Sign.O:Sign.X;
+        // set cell's sign to turn's sign
+        _localSign = _globalSign;
       });
 
       if (_globalSign == Sign.X) {
         _gameBloc
           ..turnO() // change global sign, whose turn sign
-          ..fillCell(Sign.X, widget.x, widget.y); // fill the grid
+          ..fillCell(
+              Sign.X, widget.x, widget.y); // fill the grid with tapped sign
 
       } else if (_globalSign == Sign.O) {
         _gameBloc
           ..turnX() // change global sign, whose turn sign
-          ..fillCell(Sign.O, widget.x, widget.y); // fill the grid
+          ..fillCell(
+              Sign.O, widget.x, widget.y); // fill the grid with tapped sign
 
       } else {
         print("Unknown Sign");
         return;
       }
 
+      // check if this is a winning move
       winner = _gameBloc.hasWinner(_gameBloc.grid);
-      if(winner != Sign.Empty) {
+
+      if (winner != Sign.Empty) {
         print("Winner " + winner.index.toString());
         _gameBloc.addScore(winner);
-      }else if(winner == Sign.Empty && _gameBloc.isDraw()){
+      } else if (winner == Sign.Empty && _gameBloc.isDraw()) {
         print("IT S A TIE");
         _gameBloc.addScore(winner);
-      }else if(_localSign == Sign.X && (_gameBloc.type==GameType.BotEasy || _gameBloc.type==GameType.BotHard) ){
-        print("tapForBot() timer başladı");
-        Timer(Duration(milliseconds: 500), (){
+      } else if (_localSign == Sign.X &&
+          (_gameBloc.type == GameType.BotEasy ||
+              _gameBloc.type == GameType.BotHard)) {
+        // give some time to BOT to play after player
+        Timer(Duration(milliseconds: 1000), () {
           _gameBloc.tapForBot();
         });
-      }else if(_gameBloc.type==GameType.TwoPlayer) {
+      } else if (_gameBloc.type == GameType.TwoPlayer) {
         // 2 player game wait for other player
       }
     }
@@ -85,16 +97,16 @@ class _GameCellState extends State<GameCell> {
     });
 
     // listen for bot plays/taps
-    _gameBloc.bot.listen((data){
-      if(data["x"]==widget.x && data["y"]==widget.y){
+    _gameBloc.bot.listen((data) {
+      if (data["x"] == widget.x && data["y"] == widget.y) {
         onGameCellTap();
       }
     });
 
     // listen for reset request
-    _gameBloc.reset.listen((reset){
-      if(reset == true) {
-        setState((){
+    _gameBloc.reset.listen((reset) {
+      if (reset == true) {
+        setState(() {
           _localSign = Sign.Empty;
         });
       }
@@ -104,13 +116,16 @@ class _GameCellState extends State<GameCell> {
       left: (widget.x * side / 3),
       top: (widget.y * side / 3),
       child: GestureDetector(
-        behavior: HitTestBehavior.opaque, // Let Tap event triggered on empty child
-          onTap: onGameCellTap,
-          child: SizedBox(
-              width: side / 3,
-              height: side / 3,
-              child: GameCellSign(sign: _localSign,)
-          )
+        behavior: HitTestBehavior.opaque,
+        // Let Tap event triggered on empty child
+        onTap: onGameCellTap,
+        child: SizedBox(
+          width: side / 3,
+          height: side / 3,
+          child: GameCellSign(
+            sign: _localSign,
+          ),
+        ),
       ),
     );
   }
@@ -123,7 +138,7 @@ class GameCellSign extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(sign == Sign.O){
+    if (sign == Sign.O) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: FlareActor(
@@ -134,7 +149,7 @@ class GameCellSign extends StatelessWidget {
           color: GameColors.SignO,
         ),
       );
-    }else if(sign == Sign.X){
+    } else if (sign == Sign.X) {
       return Padding(
           padding: const EdgeInsets.all(8.0),
           child: FlareActor(
@@ -143,9 +158,8 @@ class GameCellSign extends StatelessWidget {
             fit: BoxFit.contain,
             animation: "cross",
             color: GameColors.SignX,
-          )
-      );
-    }else{
+          ));
+    } else {
       // No sign attached yet
       return Container(
         width: 150,

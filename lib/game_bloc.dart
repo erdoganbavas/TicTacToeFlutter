@@ -149,20 +149,6 @@ class GameBloc implements BlocBase {
   Map<String, int> _getRandomEmptyCell() {
     List<Map<String, int>> empty = _getEmptyCellCoords(grid);
     Random random = new Random();
-    // List<Map<String, int>> empty = new List<Map<String, int>>();
-    // int x = 0;
-    // int y = 0;
-
-    // grid.forEach((row){
-    //   y = 0;
-    //   row.forEach((cell){
-    //     if(cell==Sign.Empty){
-    //       empty.add({"x": x, "y": y});
-    //     }
-    //     y++;
-    //   });
-    //   x++;
-    // });
 
     return empty[random.nextInt(empty.length)];
   }
@@ -207,7 +193,6 @@ class GameBloc implements BlocBase {
   }
 
   // reset game board and values
-  // TODO: oyun sırasını da sıfırla
   void resetGame() {
     // broadcast listeners to reset
     _resetController.sink.add(true);
@@ -217,6 +202,8 @@ class GameBloc implements BlocBase {
       [Sign.Empty, Sign.Empty, Sign.Empty],
       [Sign.Empty, Sign.Empty, Sign.Empty]
     ];
+
+    turnX();
   }
 
   // gets winning records

@@ -19,12 +19,13 @@ class GameBloc implements BlocBase {
     [Sign.Empty, Sign.Empty, Sign.Empty]
   ];
 
+  bool boardTapLocked = false;
+
   GameBloc(this.type);
 
   // whose turn is it?
   Sign initialTurn = Sign.X; // Player / Bot is always O
-  StreamController<Sign> _turnController = StreamController<Sign>.broadcast();
-  Stream<Sign> get turn => _turnController.stream;
+  Sign turn = Sign.X; // whose turn
 
   StreamController<Map<String, Object>> _botController = StreamController<Map<String, Object>>.broadcast();
   Stream<Map<String, Object>> get bot => _botController.stream;
@@ -58,20 +59,19 @@ class GameBloc implements BlocBase {
 
   @override
   void dispose() {
-    _turnController.close();
     _botController.close();
     _resetController.close();
     _scoreUpdateController.close();
   }
 
   // switch game turn to X
-  void turnX() {
-    _turnController.sink.add(Sign.X);
+  void switchTurnX() {
+    turn = Sign.X;
   }
 
   // switch game turn to O
-  void turnO() {
-    _turnController.sink.add(Sign.O);
+  void switchTurnO() {
+    turn = Sign.O;
   }
 
   // fills a grids position when tapped or bot played
@@ -203,7 +203,7 @@ class GameBloc implements BlocBase {
       [Sign.Empty, Sign.Empty, Sign.Empty]
     ];
 
-    turnX();
+    switchTurnX();
   }
 
   // gets winning records

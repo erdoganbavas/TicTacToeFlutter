@@ -20,42 +20,48 @@ class GameCell extends StatefulWidget {
 }
 
 class _GameCellState extends State<GameCell> {
-  Sign _globalSign = Sign.X;
   Sign _localSign = Sign.Empty;
   GameBloc _gameBloc;
 
   void onGameCellTap() {
-    // TODO: dont't let user tap twice on bot games
+    if (_gameBloc.boardTapLocked) {
+      return;
+    }
 
     Sign winner = _gameBloc.hasWinner(_gameBloc.grid); // check
 
-    print(_gameBloc.grid.toString());
     if (winner != Sign.Empty || _gameBloc.isDraw()) {
+      // TODO: proper error message to UI
       print("Game is over! No more move");
     } else if (_localSign != Sign.Empty) {
+      // TODO: proper error message to UI
       print("Cell is already tapped " +
           widget.x.toString() +
           " " +
           widget.y.toString());
     } else {
-      print(widget.x.toString() + " " + widget.y.toString() + " tapped");
-
       setState(() {
         // set cell's sign to turn's sign
-        _localSign = _globalSign;
+        _localSign = _gameBloc.turn;
       });
 
-      if (_globalSign == Sign.X) {
+      if (_gameBloc.turn == Sign.X) {
         _gameBloc
-          ..turnO() // change global sign, whose turn sign
+          ..switchTurnO() // change global sign, whose turn sign
           ..fillCell(
-              Sign.X, widget.x, widget.y); // fill the grid with tapped sign
+            Sign.X,
+            widget.x,
+            widget.y,
+          ); // fill the grid with tapped sign
 
-      } else if (_globalSign == Sign.O) {
+      } else if (_gameBloc.turn == Sign.O) {
         _gameBloc
-          ..turnX() // change global sign, whose turn sign
+          ..switchTurnX() // change global sign, whose turn sign
           ..fillCell(
-              Sign.O, widget.x, widget.y); // fill the grid with tapped sign
+            Sign.O,
+            widget.x,
+            widget.y,
+          ); // fill the grid with tapped sign
 
       } else {
         print("Unknown Sign");
@@ -68,16 +74,20 @@ class _GameCellState extends State<GameCell> {
       if (winner != Sign.Empty) {
         print("Winner " + winner.index.toString());
         _gameBloc.addScore(winner);
+
       } else if (winner == Sign.Empty && _gameBloc.isDraw()) {
         print("IT S A TIE");
         _gameBloc.addScore(winner);
+
       } else if (_localSign == Sign.X &&
           (_gameBloc.type == GameType.BotEasy ||
               _gameBloc.type == GameType.BotHard)) {
+
         // give some time to BOT to play after player
         Timer(Duration(milliseconds: 1000), () {
           _gameBloc.tapForBot();
         });
+
       } else if (_gameBloc.type == GameType.TwoPlayer) {
         // 2 player game wait for other player
       }
@@ -89,12 +99,8 @@ class _GameCellState extends State<GameCell> {
     _gameBloc = BlocProvider.of(context);
     final SizeHelper sizeHelper = SizeHelper(context);
 
+    // one sides' dimension of grid
     double side = sizeHelper.gridSide();
-
-    // listen global sign from Bloc to get whose turn is it
-    _gameBloc.turn.listen((data) {
-      _globalSign = data;
-    });
 
     // listen for bot plays/taps
     _gameBloc.bot.listen((data) {
@@ -118,7 +124,12 @@ class _GameCellState extends State<GameCell> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         // Let Tap event triggered on empty child
-        onTap: onGameCellTap,
+        onTap: (){
+          // only call for tap event if it's players' turn or it's a 2 player game
+          if (_gameBloc.turn == Sign.X || _gameBloc.type == GameType.TwoPlayer){
+            onGameCellTap();
+          }
+        },
         child: SizedBox(
           width: side / 3,
           height: side / 3,

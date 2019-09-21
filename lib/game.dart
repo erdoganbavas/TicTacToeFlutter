@@ -1,6 +1,7 @@
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'bloc/bloc_provider.dart';
+import 'custon_snack_bar.dart';
 import 'game_bloc.dart';
 import 'game_header.dart';
 import 'helpers/game_colors.dart';
@@ -28,6 +29,18 @@ class Game extends StatefulWidget {
 }
 
 class _GameState extends State<Game> {
+  CustomSnackBar snackBar = CustomSnackBar();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Future.delayed(Duration(seconds: 3), (){
+    //   snackBar.show("fsfsn,");
+    // });
+
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeHelper sizeHelper = SizeHelper(context);
@@ -73,10 +86,11 @@ class _GameState extends State<Game> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
+        snackBar,
       ],
     );
   }

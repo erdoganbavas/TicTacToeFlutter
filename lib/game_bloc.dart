@@ -36,8 +36,10 @@ class GameBloc implements BlocBase {
   StreamController<bool> _scoreUpdateController = StreamController<bool>.broadcast();
   Stream<bool> get scoreUpdate => _scoreUpdateController.stream;
 
+  StreamController<String> _snackBarController = StreamController<String>.broadcast();
+  Stream<String> get snackBar => _snackBarController.stream;
+
   void tapForBot(){
-    // tipe göre sonraki hamleyi belirle
     if(type == GameType.BotEasy){
       Map<String, int> emptyCell = _getRandomEmptyCell();
 
@@ -62,6 +64,7 @@ class GameBloc implements BlocBase {
     _botController.close();
     _resetController.close();
     _scoreUpdateController.close();
+    _snackBarController.close();
   }
 
   // switch game turn to X
@@ -226,5 +229,9 @@ class GameBloc implements BlocBase {
 
     prefs.setInt("score"+ winner.toString() + type.toString(), (scores[winner] + 1));
     _scoreUpdateController.sink.add(true);
+  }
+
+  void snackBarMessage(String message) {
+    _snackBarController.sink.add(message);
   }
 }

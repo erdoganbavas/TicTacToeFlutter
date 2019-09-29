@@ -1,11 +1,12 @@
-import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'bloc/bloc_provider.dart';
-import 'custon_snack_bar.dart';
+import 'custom_snack_bar.dart';
 import 'game_bloc.dart';
 import 'game_header.dart';
+import 'game_over_pop.dart';
 import 'helpers/game_colors.dart';
 import 'helpers/game_type.dart';
+import 'helpers/sign.dart';
 import 'helpers/size_helper.dart';
 import 'game_area.dart';
 
@@ -28,26 +29,21 @@ class Game extends StatefulWidget {
   _GameState createState() => _GameState();
 }
 
-class _GameState extends State<Game> {
-  CustomSnackBar snackBar = CustomSnackBar();
+class _GameState extends State<Game> with SingleTickerProviderStateMixin {
+  SizeHelper _sizeHelper;
+  GameBloc _gameBloc;
+
 
   @override
   void initState() {
     super.initState();
-
-    // Future.delayed(Duration(seconds: 3), (){
-    //   snackBar.show("fsfsn,");
-    // });
+    _sizeHelper = SizeHelper(context);
+    _gameBloc = BlocProvider.of(context);
 
   }
 
   @override
   Widget build(BuildContext context) {
-    SizeHelper sizeHelper = SizeHelper(context);
-    GameBloc _gameBloc = BlocProvider.of(context);
-
-
-    // TODO: Show Winner / Loser popup
     return Stack(
       children: [
         Container(
@@ -57,22 +53,22 @@ class _GameState extends State<Game> {
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.symmetric(
-                  vertical: sizeHelper.headerVerticalPadding,
+                  vertical: _sizeHelper.headerVerticalPadding,
                 ),
                 child: SizedBox(
-                  width: sizeHelper.width,
-                  height: sizeHelper.headerHeight,
+                  width: _sizeHelper.width,
+                  height: _sizeHelper.headerHeight,
                   child: GameHeader(),
                 ),
               ),
               SizedBox(
-                width: sizeHelper.width,
-                height: sizeHelper.bodyHeight(),
+                width: _sizeHelper.width,
+                height: _sizeHelper.bodyHeight(),
                 child: GameArea(),
               ),
               SizedBox(
-                width: sizeHelper.width,
-                height: sizeHelper.footerHeight,
+                width: _sizeHelper.width,
+                height: _sizeHelper.footerHeight,
                 child: Center(
                   child: Material(
                     borderRadius: BorderRadius.all(Radius.circular(50)),
@@ -90,7 +86,7 @@ class _GameState extends State<Game> {
             ],
           ),
         ),
-        snackBar,
+        CustomSnackBar(),
       ],
     );
   }

@@ -22,7 +22,7 @@ class GameCell extends StatefulWidget {
 class _GameCellState extends State<GameCell> {
   Sign _localSign = Sign.Empty;
   GameBloc _gameBloc;
-  SizeHelper sizeHelper;
+  SizeHelper _sizeHelper;
 
   void onGameCellTap() {
     if (_gameBloc.boardTapLocked) {
@@ -31,7 +31,7 @@ class _GameCellState extends State<GameCell> {
 
     Sign winner = _gameBloc.hasWinner(_gameBloc.grid); // check
 
-    if (winner != Sign.Empty || _gameBloc.isDraw()) {
+    if (winner != Sign.Empty || _gameBloc.isTie()) {
       _gameBloc.snackBarMessage("Game is over! No more move");
     } else if (_localSign != Sign.Empty) {
       _gameBloc.snackBarMessage("Cell is not empty!");
@@ -69,10 +69,12 @@ class _GameCellState extends State<GameCell> {
 
       if (winner != Sign.Empty) {
         print("Winner " + winner.index.toString());
+        _gameBloc.broadcastGameOver(winner);
         _gameBloc.addScore(winner);
 
-      } else if (winner == Sign.Empty && _gameBloc.isDraw()) {
+      } else if (winner == Sign.Empty && _gameBloc.isTie()) {
         print("IT S A TIE");
+        _gameBloc.broadcastGameOver(winner);
         _gameBloc.addScore(winner);
 
       } else if (_localSign == Sign.X &&
@@ -95,7 +97,7 @@ class _GameCellState extends State<GameCell> {
     super.initState();
 
     _gameBloc = BlocProvider.of(context);
-    sizeHelper = SizeHelper(context);
+    _sizeHelper = SizeHelper(context);
 
 
     // listen for bot plays/taps
@@ -119,7 +121,7 @@ class _GameCellState extends State<GameCell> {
   @override
   Widget build(BuildContext context) {
     // one sides' dimension of grid
-    double side = sizeHelper.gridSide();
+    double side = _sizeHelper.gridSide();
 
     return Positioned(
       left: (widget.x * side / 3),

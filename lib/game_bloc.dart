@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -39,6 +38,18 @@ class GameBloc implements BlocBase {
   StreamController<String> _snackBarController = StreamController<String>.broadcast();
   Stream<String> get snackBar => _snackBarController.stream;
 
+  StreamController<Sign> _gameOverController = StreamController<Sign>.broadcast();
+  Stream<Sign> get gameOver => _gameOverController.stream;
+
+  @override
+  void dispose() {
+    _botController.close();
+    _resetController.close();
+    _scoreUpdateController.close();
+    _snackBarController.close();
+    _gameOverController.close();
+  }
+
   void tapForBot(){
     if(type == GameType.BotEasy){
       Map<String, int> emptyCell = _getRandomEmptyCell();
@@ -49,7 +60,7 @@ class GameBloc implements BlocBase {
         "sign" : Sign.O,
       });
     }else if(type == GameType.BotHard){
-      Map<String, int> bestMove = _getMinimaxMove(grid, Sign.O);
+      Map<String, int> bestMove = _getSmartMove(grid, Sign.O);
 
       _botController.sink.add({
         "x" : bestMove["x"],
@@ -57,14 +68,6 @@ class GameBloc implements BlocBase {
         "sign" : Sign.O,
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _botController.close();
-    _resetController.close();
-    _scoreUpdateController.close();
-    _snackBarController.close();
   }
 
   // switch game turn to X
@@ -83,6 +86,8 @@ class GameBloc implements BlocBase {
   }
 
   // return Sign of winner - Sign.Empty if no winner yet
+  // check tie isTie()
+  // TODO: return null on "no winner yet" return Sign.Empty on "isTie"
   Sign hasWinner(List<List<Sign>> winnerGrid){
     Sign winner = Sign.Empty;
 
@@ -113,7 +118,7 @@ class GameBloc implements BlocBase {
   }
 
   // check if game is a Tie
-  bool isDraw(){
+  bool isTie(){
     bool draw = true;
 
     // check if grid is full
@@ -128,7 +133,51 @@ class GameBloc implements BlocBase {
     return draw;
   }
 
-  // return list of empty cells
+  // resets game board and values
+  void resetGame() {
+    // broadcast listeners to reset
+    _resetController.sink.add(true);
+
+    grid = [
+      [Sign.Empty, Sign.Empty, Sign.Empty],
+      [Sign.Empty, Sign.Empty, Sign.Empty],
+      [Sign.Empty, Sign.Empty, Sign.Empty]
+    ];
+
+    switchTurnX();
+  }
+
+  // gets winning scores
+  Future<Map<Sign, int>> getScores() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<Sign, int> scores = Map<Sign, int>();
+
+    // get winning records according to game type
+    scores[Sign.O] = prefs.getInt('score'+ Sign.O.toString() + type.toString()) ?? 0;
+    scores[Sign.X] = prefs.getInt('score'+ Sign.X.toString() + type.toString()) ?? 0;
+    scores[Sign.Empty] = prefs.getInt('score'+ Sign.Empty.toString() + type.toString()) ?? 0;
+
+    return scores;
+  }
+
+  // sets a record for winning or a tie
+  Future<void> addScore(Sign winner) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<Sign, int> scores = await this.getScores();
+
+    prefs.setInt("score"+ winner.toString() + type.toString(), (scores[winner] + 1));
+    _scoreUpdateController.sink.add(true);
+  }
+
+  void snackBarMessage(String message) {
+    _snackBarController.sink.add(message);
+  }
+
+  // broadcasts game overs with winner
+  void broadcastGameOver(Sign winner) {
+    _gameOverController.sink.add(winner);
+  }
+  // returns list of empty cells
   List<Map<String, int>> _getEmptyCellCoords(List<List<Sign>> _grid){
     List<Map<String, int>> empty = new List<Map<String, int>>();
     int x = 0;
@@ -148,7 +197,7 @@ class GameBloc implements BlocBase {
     return empty;
   }
 
-  // gets a random empty cell for bot
+  // gets a random empty cell for bot easy mode
   Map<String, int> _getRandomEmptyCell() {
     List<Map<String, int>> empty = _getEmptyCellCoords(grid);
     Random random = new Random();
@@ -156,8 +205,9 @@ class GameBloc implements BlocBase {
     return empty[random.nextInt(empty.length)];
   }
 
-  // used for bot moves
-  Map<String, int> _getMinimaxMove(List<List<Sign>> tempGrid, Sign _sign) {
+  // returns a possible move for bot hard mode
+  // better than random by a couple if checks
+  Map<String, int> _getSmartMove(List<List<Sign>> tempGrid, Sign _sign) {
     // get empty cells' coordinates
     List<Map<String, int>> availSpots = _getEmptyCellCoords(tempGrid);
     Sign winner;
@@ -193,45 +243,5 @@ class GameBloc implements BlocBase {
     Random random = new Random();
     return availSpots[random.nextInt(availSpots.length)];
 
-  }
-
-  // reset game board and values
-  void resetGame() {
-    // broadcast listeners to reset
-    _resetController.sink.add(true);
-
-    grid = [
-      [Sign.Empty, Sign.Empty, Sign.Empty],
-      [Sign.Empty, Sign.Empty, Sign.Empty],
-      [Sign.Empty, Sign.Empty, Sign.Empty]
-    ];
-
-    switchTurnX();
-  }
-
-  // gets winning records
-  Future<Map<Sign, int>> getScores() async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    Map<Sign, int> scores = Map<Sign, int>();
-
-    // get winning records according to game type
-    scores[Sign.O] = prefs.getInt('score'+ Sign.O.toString() + type.toString()) ?? 0;
-    scores[Sign.X] = prefs.getInt('score'+ Sign.X.toString() + type.toString()) ?? 0;
-    scores[Sign.Empty] = prefs.getInt('score'+ Sign.Empty.toString() + type.toString()) ?? 0;
-
-    return scores;
-  }
-
-  // set a record for winning or a tie
-  Future<void> addScore(Sign winner) async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    Map<Sign, int> scores = await this.getScores();
-
-    prefs.setInt("score"+ winner.toString() + type.toString(), (scores[winner] + 1));
-    _scoreUpdateController.sink.add(true);
-  }
-
-  void snackBarMessage(String message) {
-    _snackBarController.sink.add(message);
   }
 }

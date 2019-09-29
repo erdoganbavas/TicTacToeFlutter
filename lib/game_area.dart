@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'game_cell.dart';
+import 'game_over_pop.dart';
 import 'helpers/size_helper.dart';
 
 class GameArea extends StatefulWidget {
@@ -71,6 +72,7 @@ class _GameAreaState extends State<GameArea> {
           GameCell(x: 2, y: 0),
           GameCell(x: 2, y: 1),
           GameCell(x: 2, y: 2),
+          GameOverPop(),
         ],
       ),
     );

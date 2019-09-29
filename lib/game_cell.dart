@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flare_flutter/flare_actor.dart';
+import 'package:flare_flutter/flare_controller.dart';
+import 'package:flare_flutter/flare_controls.dart';
 import 'package:flutter/material.dart';
 import 'bloc/bloc_provider.dart';
 import 'game_bloc.dart';
@@ -24,7 +26,63 @@ class _GameCellState extends State<GameCell> {
   GameBloc _gameBloc;
   SizeHelper _sizeHelper;
 
-  void onGameCellTap() {
+  @override
+  void initState() {
+    super.initState();
+
+    _gameBloc = BlocProvider.of(context);
+    _sizeHelper = SizeHelper(context);
+
+    _initListeners();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // one sides' dimension of grid
+    double side = _sizeHelper.gridSide();
+
+    return Positioned(
+      left: (widget.x * side / 3),
+      top: (widget.y * side / 3),
+      child: GestureDetector(
+        // Let Tap event triggered on empty child
+        behavior: HitTestBehavior.opaque,
+        onTap: (){
+          // only call for tap event if it's players' turn or it's a 2 player game
+          if (_gameBloc.turn == Sign.X || _gameBloc.type == GameType.TwoPlayer){
+            _onGameCellTap();
+          }
+        },
+        child: SizedBox(
+          width: side / 3,
+          height: side / 3,
+          child: GameCellSign(
+            sign: _localSign,
+          ),
+        ),
+      ),
+    );
+  }
+
+  _initListeners() {
+    // listen for bot plays/taps
+    _gameBloc.bot.listen((data) {
+      if (data["x"] == widget.x && data["y"] == widget.y) {
+        _onGameCellTap();
+      }
+    });
+
+    // listen for reset request
+    _gameBloc.reset.listen((reset) {
+      if (reset == true) {
+        setState(() {
+          _localSign = Sign.Empty;
+        });
+      }
+    });
+  }
+
+  _onGameCellTap() {
     if (_gameBloc.boardTapLocked) {
       return;
     }
@@ -92,59 +150,6 @@ class _GameCellState extends State<GameCell> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    _gameBloc = BlocProvider.of(context);
-    _sizeHelper = SizeHelper(context);
-
-
-    // listen for bot plays/taps
-    _gameBloc.bot.listen((data) {
-      if (data["x"] == widget.x && data["y"] == widget.y) {
-        onGameCellTap();
-      }
-    });
-
-    // listen for reset request
-    _gameBloc.reset.listen((reset) {
-      if (reset == true) {
-        setState(() {
-          _localSign = Sign.Empty;
-        });
-      }
-    });
-
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // one sides' dimension of grid
-    double side = _sizeHelper.gridSide();
-
-    return Positioned(
-      left: (widget.x * side / 3),
-      top: (widget.y * side / 3),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        // Let Tap event triggered on empty child
-        onTap: (){
-          // only call for tap event if it's players' turn or it's a 2 player game
-          if (_gameBloc.turn == Sign.X || _gameBloc.type == GameType.TwoPlayer){
-            onGameCellTap();
-          }
-        },
-        child: SizedBox(
-          width: side / 3,
-          height: side / 3,
-          child: GameCellSign(
-            sign: _localSign,
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class GameCellSign extends StatelessWidget {
@@ -154,6 +159,8 @@ class GameCellSign extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FlareController cont = FlareControls();
+
     if (sign == Sign.O) {
       return Padding(
         padding: const EdgeInsets.all(8.0),

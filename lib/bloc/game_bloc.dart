@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tictactoe/helpers/game_type.dart';
+import 'package:tictactoe/helpers/sign.dart';
 
-import 'bloc/bloc_provider.dart';
-import 'helpers/game_type.dart';
-import 'helpers/sign.dart';
+import 'bloc_provider.dart';
 
 class GameBloc implements BlocBase {
   final GameType type;

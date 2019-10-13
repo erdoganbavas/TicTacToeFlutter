@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'bloc/bloc_provider.dart';
-import 'custom_snack_bar.dart';
-import 'game_bloc.dart';
+import 'package:tictactoe/bloc/bloc_provider.dart';
+import 'package:tictactoe/bloc/game_bloc.dart';
+import 'package:tictactoe/helpers/game_colors.dart';
+import 'package:tictactoe/helpers/game_type.dart';
+import 'package:tictactoe/helpers/size_helper.dart';
+import 'package:tictactoe/widgets/custom_snack_bar.dart';
 import 'game_header.dart';
-import 'game_over_pop.dart';
-import 'helpers/game_colors.dart';
-import 'helpers/game_type.dart';
-import 'helpers/sign.dart';
-import 'helpers/size_helper.dart';
 import 'game_area.dart';
 
 class GamePage extends StatelessWidget {

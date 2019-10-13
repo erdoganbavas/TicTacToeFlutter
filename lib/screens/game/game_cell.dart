@@ -1,15 +1,13 @@
 import 'dart:async';
 
 import 'package:flare_flutter/flare_actor.dart';
-import 'package:flare_flutter/flare_controller.dart';
-import 'package:flare_flutter/flare_controls.dart';
 import 'package:flutter/material.dart';
-import 'bloc/bloc_provider.dart';
-import 'game_bloc.dart';
-import 'helpers/game_colors.dart';
-import 'helpers/game_type.dart';
-import 'helpers/sign.dart';
-import 'helpers/size_helper.dart';
+import 'package:tictactoe/bloc/bloc_provider.dart';
+import 'package:tictactoe/bloc/game_bloc.dart';
+import 'package:tictactoe/helpers/game_colors.dart';
+import 'package:tictactoe/helpers/game_type.dart';
+import 'package:tictactoe/helpers/sign.dart';
+import 'package:tictactoe/helpers/size_helper.dart';
 
 class GameCell extends StatefulWidget {
   final int x;
@@ -159,8 +157,6 @@ class GameCellSign extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FlareController cont = FlareControls();
-
     if (sign == Sign.O) {
       return Padding(
         padding: const EdgeInsets.all(8.0),

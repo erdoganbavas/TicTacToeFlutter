@@ -1,11 +1,11 @@
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:tictactoe/bloc/bloc_provider.dart';
 
-import 'bloc/bloc_provider.dart';
-import 'game_bloc.dart';
-import 'helpers/game_colors.dart';
-import 'helpers/sign.dart';
-import 'helpers/size_helper.dart';
+import 'package:tictactoe/bloc/game_bloc.dart';
+import 'package:tictactoe/helpers/game_colors.dart';
+import 'package:tictactoe/helpers/sign.dart';
+import 'package:tictactoe/helpers/size_helper.dart';
 
 
 class GameHeader extends StatefulWidget {

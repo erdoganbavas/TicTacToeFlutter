@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tictactoe/bloc/bloc_provider.dart';
+import 'package:tictactoe/helpers/game_type.dart';
+import 'package:tictactoe/helpers/sign.dart';
 
-import 'bloc/bloc_provider.dart';
-import 'game_bloc.dart';
-import 'helpers/game_type.dart';
-import 'helpers/sign.dart';
+import 'package:tictactoe/bloc/game_bloc.dart';
 
 class GameOverPop extends StatefulWidget {
   @override

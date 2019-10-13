@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
+import 'package:tictactoe/bloc/bloc_provider.dart';
 
-import 'bloc/bloc_provider.dart';
-import 'game_bloc.dart';
+import 'package:tictactoe/bloc/game_bloc.dart';
 
 class CustomSnackBar extends StatefulWidget {
   @override

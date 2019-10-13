@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'game_cell.dart';
-import 'game_over_pop.dart';
-import 'helpers/size_helper.dart';
+import 'package:tictactoe/helpers/size_helper.dart';
+import 'package:tictactoe/screens/game/game_cell.dart';
+import 'package:tictactoe/screens/game/game_over_pop.dart';
+
 
 class GameArea extends StatefulWidget {
   @override

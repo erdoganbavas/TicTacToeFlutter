@@ -1,1 +1,4 @@
-Basic Tic Tac Toe game for flutter practice. This project is in progress...
+Basic Tic Tac Toe game for flutter practice.
+
+![screen shot](assets/screenshot.jpg "Screen shot")
+
